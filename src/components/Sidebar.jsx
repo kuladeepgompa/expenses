@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Receipt, PieChart, CreditCard, Users, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Receipt, PieChart, CreditCard, Users, Sun, Moon, Menu, Smartphone } from 'lucide-react';
 
 const Sidebar = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark';
   });
@@ -16,6 +17,21 @@ const Sidebar = () => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  const [isMobileView, setIsMobileView] = useState(() => {
+    return localStorage.getItem('isMobileView') === 'true';
+  });
+
+  useEffect(() => {
+    if (isMobileView) {
+      document.body.classList.add('force-mobile');
+    } else {
+      document.body.classList.remove('force-mobile');
+    }
+    localStorage.setItem('isMobileView', isMobileView);
+  }, [isMobileView]);
+
+  const toggleMobileView = () => setIsMobileView(!isMobileView);
+
   const toggleTheme = () => {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
@@ -28,8 +44,28 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="sidebar">
-      <div className="mb-8 flex items-center gap-2">
+    <>
+      {/* Mobile Hamburger Toggle */}
+      <button 
+        className="mobile-toggle" 
+        onClick={() => setIsOpen(true)}
+        aria-label="Open sidebar"
+      >
+        <Menu size={24} />
+      </button>
+
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar Drawer */}
+      <div className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <div className="mb-8 flex items-center gap-2">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white font-bold text-xl shadow-md">
           F
         </div>
@@ -41,6 +77,7 @@ const Sidebar = () => {
           <NavLink
             key={item.path}
             to={item.path}
+            onClick={() => setIsOpen(false)}
             className={({ isActive }) => 
               `flex items-center gap-3 px-4 py-3 rounded-lg nav-item ${isActive ? 'active' : ''}`
             }
@@ -52,17 +89,31 @@ const Sidebar = () => {
       </nav>
       
       <div className="mt-auto pt-6 border-t border-[var(--border-color)] flex flex-col gap-6">
-        <div className="flex justify-between items-center px-2">
-          <span className="text-sm font-medium text-secondary">
-            {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-          </span>
-          <button 
-            onClick={toggleTheme}
-            className="btn-icon"
-            title="Toggle Theme"
-          >
-            {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-          </button>
+        <div className="flex flex-col gap-3">
+          <div className="flex justify-between items-center px-2">
+            <span className="text-sm font-medium text-secondary">
+              {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+            </span>
+            <button 
+              onClick={toggleTheme}
+              className="btn-icon"
+              title="Toggle Theme"
+            >
+              {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+          </div>
+          <div className="flex justify-between items-center px-2">
+            <span className="text-sm font-medium text-secondary">
+              Mobile View Simulation
+            </span>
+            <button 
+              onClick={toggleMobileView}
+              className={`btn-icon ${isMobileView ? 'text-primary bg-[var(--surface-color-light)]' : ''}`}
+              title="Toggle Mobile View"
+            >
+              <Smartphone size={18} />
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-surface-light border border-primary flex items-center justify-center text-primary font-bold shadow-sm">U</div>
@@ -72,7 +123,8 @@ const Sidebar = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
