@@ -143,47 +143,53 @@ const GroupExpenses = () => {
 
       {showNewGroup && (
         <div className="card mb-8 animate-fade-in">
-          <h2 className="text-xl font-bold mb-4">Create New Group</h2>
-          <form onSubmit={handleCreateGroup} className="mb-4">
-            <div className="mb-4">
+          <h2 className="text-xl font-bold mb-6">Create New Group</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            <div className="flex flex-col w-full">
               <label>Group Name</label>
               <input 
                 type="text" 
                 value={groupName} 
                 onChange={e => setGroupName(e.target.value)} 
                 placeholder="Trip to Hawaii" 
-                className="max-w-md"
+                className="w-full"
+                onKeyDown={e => { if(e.key==='Enter') handleCreateGroup(e); }}
               />
             </div>
-          </form>
-          
-          <form onSubmit={handleAddMember} className="mb-4 flex gap-2 items-end max-w-md">
-            <div className="flex-1">
+            
+            <form onSubmit={handleAddMember} className="flex flex-col w-full justify-end">
               <label>Add Member Name</label>
-              <input 
-                type="text" 
-                value={memberName} 
-                onChange={e => setMemberName(e.target.value)} 
-                placeholder="Alice" 
-              />
-            </div>
-            <button type="submit" className="btn btn-secondary">Add</button>
-          </form>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={memberName} 
+                  onChange={e => setMemberName(e.target.value)} 
+                  placeholder="Alice" 
+                  className="w-full"
+                />
+                <button type="submit" className="btn btn-secondary whitespace-nowrap">Add</button>
+              </div>
+            </form>
+          </div>
           
           {newMembers.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {newMembers.map(m => (
-                <div key={m} className="badge badge-info flex items-center gap-1">
-                  {m}
-                  <button onClick={() => handleRemoveNewMember(m)} className="ml-1 hover:text-danger">
-                    ✕
-                  </button>
-                </div>
-              ))}
+            <div className="mt-6">
+              <label className="mb-2 block">Members ({newMembers.length})</label>
+              <div className="flex flex-wrap gap-2 p-4 rounded-xl bg-surface border border-border-color">
+                {newMembers.map(m => (
+                  <div key={m} className="badge badge-info flex items-center gap-1 py-1.5 px-3">
+                    {m}
+                    <button type="button" onClick={() => handleRemoveNewMember(m)} className="ml-1 hover:text-danger focus:outline-none">
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           
-          <div className="flex gap-2">
+          <div className="flex gap-3 mt-6 pt-6 border-t border-[var(--border-color)]">
             <button onClick={handleCreateGroup} className="btn btn-primary">Save Group</button>
             <button onClick={() => setShowNewGroup(false)} className="btn btn-secondary">Cancel</button>
           </div>
@@ -197,10 +203,10 @@ const GroupExpenses = () => {
           <p className="mt-2 text-sm max-w-sm">Create a group to start splitting bills with friends or roommates.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
           {/* LEFT PANEL */}
-          <div className="lg:col-span-1 flex flex-col gap-3 w-full">
+          <div className="lg:col-span-1 flex flex-col gap-3 w-full min-w-0">
             <h3 className="font-semibold text-secondary uppercase text-xs tracking-wider">
               Your Groups
             </h3>
@@ -212,41 +218,44 @@ const GroupExpenses = () => {
                   setActiveGroup(g);
                   setShowExpenseForm(false);
                 }}
-                className={`w-full text-left p-4 rounded-xl transition-all duration-200
+                className={`w-full text-left p-4 rounded-xl transition-all duration-200 border
                 ${
                   currentGroup?.id === g.id
-                    ? 'bg-primary text-black font-semibold shadow-lg'
-                    : 'bg-surface text-secondary hover:bg-secondary hover:text-white'
+                    ? 'bg-primary text-[#0f372c] font-semibold border-transparent shadow-lg'
+                    : 'bg-surface text-secondary border-transparent hover:border-[rgba(255,255,255,0.1)] hover:bg-surface-light hover:text-white'
                 }`}
               >
-                <div className="flex justify-between items-center">
-                  <span className="truncate">{g.name}</span>
-                  <span className="text-xs badge badge-info py-0 px-2">
-                    {g.members.length}
+                <div className="flex justify-between items-center gap-3">
+                  <span className="truncate flex-1 min-w-0">{g.name}</span>
+                  <span className="text-xs badge bg-black/20 text-current py-1 px-2 shrink-0 border-none">
+                    {g.members.length} {g.members.length === 1 ? 'member' : 'members'}
                   </span>
                 </div>
               </button>
             ))}
           </div>
 
+
           {/* RIGHT PANEL */}
           {currentGroup && (
-            <div className="lg:col-span-2 w-full">
-              <div className="card mb-6">
+            <div className="lg:col-span-2 w-full min-w-0">
+
+              {/* IMPORTANT: force full width */}
+              <div className="card mb-6 w-full block overflow-visible">
 
                 {/* HEADER */}
-                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 border-b border-[var(--border-color)] pb-4">
-                  <div>
-                    <h2 className="text-2xl font-bold">{currentGroup.name}</h2>
-                    <p className="text-sm text-secondary mt-1">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 border-b border-[var(--border-color)] pb-4">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-2xl font-bold truncate">{currentGroup.name}</h2>
+                    <p className="text-sm text-secondary mt-1 truncate">
                       Members: {currentGroup.members.map(m => m.name).join(', ')}
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <button 
                       onClick={() => setShowExpenseForm(!showExpenseForm)} 
-                      className="btn btn-primary btn-sm px-4 py-2 text-sm"
+                      className="btn btn-primary btn-sm px-4 py-2 text-sm whitespace-nowrap"
                     >
                       <Plus size={16} className="mr-1" /> Add Bill
                     </button>
@@ -256,7 +265,7 @@ const GroupExpenses = () => {
                         deleteGroup(currentGroup.id);
                         setActiveGroup(null);
                       }} 
-                      className="btn btn-danger btn-sm px-4 py-2 text-sm"
+                      className="btn btn-danger btn-sm px-4 py-2 text-sm whitespace-nowrap"
                     >
                       Delete
                     </button>
@@ -264,65 +273,70 @@ const GroupExpenses = () => {
                 </div>
 
 
-                {/* ADD EXPENSE FORM */}
                 {showExpenseForm && (
                   <form 
                     onSubmit={handleAddExpense} 
-                    className="mb-6 p-4 rounded-xl bg-[var(--bg-color)] border border-[var(--border-color)]"
+                    className="mb-8 p-6 w-full rounded-xl bg-surface-light border border-border-color"
                   >
-                    <h4 className="font-bold mb-3">Add New Expense</h4>
+                    <h4 className="font-bold mb-5 text-lg">Add New Expense</h4>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      
-                      <div>
+                    <div className="flex flex-col gap-5 w-full items-start">
+
+                      <div className="flex flex-col w-full">
                         <label>Description</label>
                         <input 
                           type="text"
                           value={expDesc}
                           onChange={e => setExpDesc(e.target.value)}
                           required
-                          placeholder="Dinner at Joe's"
+                          placeholder="Dinner"
+                          className="w-full"
                         />
                       </div>
 
-                      <div>
-                        <label>Total Amount (₹)</label>
-                        <input 
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          value={expAmount}
-                          onChange={e => setExpAmount(e.target.value)}
-                          required
-                          placeholder="120.50"
-                        />
-                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full">
+                        <div className="flex flex-col w-full">
+                          <label>Total Amount (₹)</label>
+                          <input 
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            value={expAmount}
+                            onChange={e => setExpAmount(e.target.value)}
+                            required
+                            placeholder="120.50"
+                            className="w-full"
+                          />
+                        </div>
 
-                      <div>
-                        <label>Paid By</label>
-                        <select 
-                          value={expPaidBy}
-                          onChange={e => setExpPaidBy(e.target.value)}
-                          required
-                        >
-                          <option value="" disabled>Select Member</option>
-                          {currentGroup.members.map(m => (
-                            <option key={m.id} value={m.id}>
-                              {m.name}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="flex flex-col w-full">
+                          <label>Paid By</label>
+                          <select 
+                            value={expPaidBy}
+                            onChange={e => setExpPaidBy(e.target.value)}
+                            required
+                            className="w-full"
+                          >
+                            <option value="" disabled>Select Member</option>
+                            {currentGroup.members.map(m => (
+                              <option key={m.id} value={m.id}>
+                                {m.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </div>
 
                     </div>
 
-                    <p className="text-xs text-secondary mt-3">
-                      Split equally among all members by default.
-                    </p>
-
-                    <button type="submit" className="btn btn-primary mt-4">
-                      Save
-                    </button>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6 pt-6 border-t border-[var(--border-color)]">
+                      <p className="text-xs text-secondary flex-1">
+                        Split equally among all members by default.
+                      </p>
+                      <button type="submit" className="btn btn-primary w-full sm:w-auto shrink-0 whitespace-nowrap">
+                        Save Expense
+                      </button>
+                    </div>
                   </form>
                 )}
 
@@ -331,7 +345,7 @@ const GroupExpenses = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
 
                   {/* EXPENSES */}
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="text-lg font-bold mb-4">Expenses</h3>
 
                     {currentGroup.expenses.length === 0 ? (
@@ -346,16 +360,16 @@ const GroupExpenses = () => {
                           return (
                             <div 
                               key={i}
-                              className="p-3 rounded-lg flex justify-between items-center bg-black/20"
+                              className="p-3 rounded-lg flex justify-between items-center bg-black/20 gap-3"
                             >
-                              <div>
-                                <p className="font-semibold">{exp.description}</p>
-                                <p className="text-xs text-secondary">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold truncate">{exp.description}</p>
+                                <p className="text-xs text-secondary truncate">
                                   {payer?.name} paid
                                 </p>
                               </div>
 
-                              <p className="font-bold text-lg">
+                              <p className="font-bold text-lg shrink-0">
                                 ₹{exp.amount.toFixed(2)}
                               </p>
                             </div>
@@ -367,7 +381,7 @@ const GroupExpenses = () => {
 
 
                   {/* SETTLEMENTS */}
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="text-lg font-bold mb-4">Who owes Who?</h3>
 
                     {currentGroup.expenses.length === 0 ? (
@@ -384,13 +398,15 @@ const GroupExpenses = () => {
                           calculateSettlements(currentGroup).map((settlement, i) => (
                             <div 
                               key={i}
-                              className="flex items-center gap-3 p-3 rounded-lg bg-white/5"
+                              className="flex items-center justify-between gap-2 p-3 rounded-lg bg-white/5"
                             >
-                              <span className="font-semibold">{settlement.from}</span>
-                              <ArrowRightLeft size={16} className="text-secondary" />
-                              <span className="font-semibold">{settlement.to}</span>
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <span className="font-semibold truncate">{settlement.from}</span>
+                                <ArrowRightLeft size={16} className="text-secondary shrink-0" />
+                                <span className="font-semibold truncate">{settlement.to}</span>
+                              </div>
 
-                              <span className="ml-auto font-bold text-danger">
+                              <span className="ml-auto font-bold text-danger shrink-0">
                                 ₹{settlement.amount.toFixed(2)}
                               </span>
                             </div>
