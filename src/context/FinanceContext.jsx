@@ -26,6 +26,11 @@ export const FinanceProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [totalBalance, setTotalBalance] = useState(() => {
+    const saved = localStorage.getItem('finance_total_balance');
+    return saved ? parseFloat(saved) : 0;
+  });
+
   // --- Persistence ---
   useEffect(() => {
     localStorage.setItem('finance_expenses', JSON.stringify(expenses));
@@ -43,12 +48,21 @@ export const FinanceProvider = ({ children }) => {
     localStorage.setItem('finance_groups', JSON.stringify(groups));
   }, [groups]);
 
+  useEffect(() => {
+    localStorage.setItem('finance_total_balance', totalBalance.toString());
+  }, [totalBalance]);
+
   // --- Expenses Methods ---
   const addExpense = (expense) => {
     setExpenses([...expenses, { ...expense, id: Date.now().toString() }]);
+    setTotalBalance(prev => prev - expense.amount);
   };
 
   const deleteExpense = (id) => {
+    const expense = expenses.find(e => e.id === id);
+    if (expense) {
+      setTotalBalance(prev => prev + expense.amount);
+    }
     setExpenses(expenses.filter(e => e.id !== id));
   };
 
@@ -105,7 +119,8 @@ export const FinanceProvider = ({ children }) => {
       expenses, addExpense, deleteExpense,
       budgets, setBudget, deleteBudget,
       subscriptions, addSubscription, deleteSubscription,
-      groups, addGroup, addGroupExpense, deleteGroup
+      groups, addGroup, addGroupExpense, deleteGroup,
+      totalBalance, setTotalBalance
     }}>
       {children}
     </FinanceContext.Provider>

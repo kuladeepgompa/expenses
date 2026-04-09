@@ -1,8 +1,15 @@
-import React from 'react';
 import { useFinance } from '../context/FinanceContext';
+import { Edit2 } from 'lucide-react';
 
 const Dashboard = () => {
-  const { expenses, budgets, subscriptions } = useFinance();
+  const { expenses, budgets, subscriptions, totalBalance, setTotalBalance } = useFinance();
+
+  const handleEditBalance = () => {
+    const newBalance = prompt('Enter your current total balance:', totalBalance);
+    if (newBalance !== null && !isNaN(parseFloat(newBalance))) {
+      setTotalBalance(parseFloat(newBalance));
+    }
+  };
 
   // Calculate current month's expenses
   const currentMonth = new Date().getMonth();
@@ -39,9 +46,19 @@ const Dashboard = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="card">
-          <h3 className="text-secondary text-sm font-semibold mb-2">Total Balance</h3>
-          <p className="text-3xl font-bold text-success animate-child-1">₹12,450.00</p>
+        <div className="card relative group">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-secondary text-sm font-semibold">Total Balance</h3>
+            <button 
+              onClick={handleEditBalance}
+              className="p-1 px-3 flex items-center gap-2 bg-surface-light hover:bg-primary border border-border-color rounded transition-colors text-xs text-secondary hover:text-[var(--on-primary)]"
+              title="Edit Balance"
+            >
+              <Edit2 size={12} />
+              <span>Update Balance</span>
+            </button>
+          </div>
+          <p className="text-3xl font-bold text-success animate-child-1">₹{totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           <p className="text-secondary text-sm mt-2 font-medium">Available Cash</p>
         </div>
         <div className="card">
