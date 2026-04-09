@@ -115,12 +115,15 @@ a:hover {
 .card {
   background: var(--surface-color);
   border-radius: var(--radius-lg);
-  padding: 2rem; /* Generous padding */
+  padding: 2rem;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-md);
   transition: all var(--transition-bounce);
   position: relative;
-  overflow: hidden;
+
+  width: 100%;
+  display: block;
+  overflow: visible; 
 }
 
 /* Floating Glass Gradient on hover */
@@ -133,22 +136,26 @@ a:hover {
 
 /* Form Elements */
 input, select, textarea {
+  display: block; /* 🔥 THIS IS THE KEY FIX */
   width: 100%;
-  padding: 0.85rem 1.25rem;
-  background-color: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border-color);
-  border-radius: 0;
-  color: var(--text-primary);
+  padding: 0.85rem 1rem;
+  background-color: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: rgb(234, 136, 136);
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   transition: all var(--transition-fast);
 }
 
+input, select {
+  min-width: 0;
+}
+
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-bottom: 2px solid var(--primary-color);
-  background-color: rgba(167, 207, 192, 0.03);
+  border: 1px solid var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(167, 207, 192, 0.2);
 }
 
 label {
