@@ -62,7 +62,7 @@ const GroupExpenses = () => {
     setShowExpenseForm(false);
     
     // Update activeGroup local reference to show changes immediately
-    const updated = groups.find(g => g.id === activeGroup.id);
+    // const updated = groups.find(g => g.id === activeGroup.id);
     // Since context state update is async, we don't strictly *need* to do this if we rely on the component re-render,
     // but React handles the re-render when context changes. We can just rely on `groups.find()`.
   };
@@ -197,9 +197,14 @@ const GroupExpenses = () => {
           <p className="mt-2 text-sm max-w-sm">Create a group to start splitting bills with friends or roommates.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-1 flex flex-col gap-2">
-            <h3 className="font-semibold text-secondary mb-2 uppercase text-xs tracking-wider">Your Groups</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* LEFT PANEL */}
+          <div className="lg:col-span-1 flex flex-col gap-3 w-full">
+            <h3 className="font-semibold text-secondary uppercase text-xs tracking-wider">
+              Your Groups
+            </h3>
+
             {groups.map(g => (
               <button 
                 key={g.id}
@@ -207,27 +212,37 @@ const GroupExpenses = () => {
                   setActiveGroup(g);
                   setShowExpenseForm(false);
                 }}
-                className={`text-left p-4 rounded-lg transition-all animate-child-1 ${currentGroup?.id === g.id ? 'bg-primary text-white font-bold' : 'bg-surface text-secondary hover:bg-secondary hover:text-white'}`}
-                style={currentGroup?.id === g.id ? { boxShadow: '0 0 15px rgba(16,185,129,0.3)', color: '#000' } : {}}
+                className={`w-full text-left p-4 rounded-xl transition-all duration-200
+                ${
+                  currentGroup?.id === g.id
+                    ? 'bg-primary text-black font-semibold shadow-lg'
+                    : 'bg-surface text-secondary hover:bg-secondary hover:text-white'
+                }`}
               >
                 <div className="flex justify-between items-center">
-                  <span>{g.name}</span>
-                  <span className="text-xs badge badge-info py-0">{g.members.length}</span>
+                  <span className="truncate">{g.name}</span>
+                  <span className="text-xs badge badge-info py-0 px-2">
+                    {g.members.length}
+                  </span>
                 </div>
               </button>
             ))}
           </div>
 
+          {/* RIGHT PANEL */}
           {currentGroup && (
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-2 w-full">
               <div className="card mb-6">
-                <div className="flex justify-between items-center mb-6 border-b border-[var(--border-color)] pb-4">
+
+                {/* HEADER */}
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 border-b border-[var(--border-color)] pb-4">
                   <div>
                     <h2 className="text-2xl font-bold">{currentGroup.name}</h2>
                     <p className="text-sm text-secondary mt-1">
                       Members: {currentGroup.members.map(m => m.name).join(', ')}
                     </p>
                   </div>
+
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setShowExpenseForm(!showExpenseForm)} 
@@ -235,6 +250,7 @@ const GroupExpenses = () => {
                     >
                       <Plus size={16} className="mr-1" /> Add Bill
                     </button>
+
                     <button 
                       onClick={() => {
                         deleteGroup(currentGroup.id);
@@ -247,49 +263,101 @@ const GroupExpenses = () => {
                   </div>
                 </div>
 
+
+                {/* ADD EXPENSE FORM */}
                 {showExpenseForm && (
-                  <form onSubmit={handleAddExpense} className="mb-6 p-4 rounded-lg bg-[var(--bg-color)] border border-[var(--border-color)]">
+                  <form 
+                    onSubmit={handleAddExpense} 
+                    className="mb-6 p-4 rounded-xl bg-[var(--bg-color)] border border-[var(--border-color)]"
+                  >
                     <h4 className="font-bold mb-3">Add New Expense</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-wrap">
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      
                       <div>
                         <label>Description</label>
-                        <input type="text" value={expDesc} onChange={e => setExpDesc(e.target.value)} required placeholder="Dinner at Joe's" />
+                        <input 
+                          type="text"
+                          value={expDesc}
+                          onChange={e => setExpDesc(e.target.value)}
+                          required
+                          placeholder="Dinner at Joe's"
+                        />
                       </div>
+
                       <div>
                         <label>Total Amount (₹)</label>
-                        <input type="number" step="0.01" min="0.01" value={expAmount} onChange={e => setExpAmount(e.target.value)} required placeholder="120.50" />
+                        <input 
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          value={expAmount}
+                          onChange={e => setExpAmount(e.target.value)}
+                          required
+                          placeholder="120.50"
+                        />
                       </div>
+
                       <div>
                         <label>Paid By</label>
-                        <select value={expPaidBy} onChange={e => setExpPaidBy(e.target.value)} required>
+                        <select 
+                          value={expPaidBy}
+                          onChange={e => setExpPaidBy(e.target.value)}
+                          required
+                        >
                           <option value="" disabled>Select Member</option>
                           {currentGroup.members.map(m => (
-                            <option key={m.id} value={m.id}>{m.name}</option>
+                            <option key={m.id} value={m.id}>
+                              {m.name}
+                            </option>
                           ))}
                         </select>
                       </div>
+
                     </div>
-                    <p className="text-xs text-secondary mt-3">Split equally among all members by default.</p>
-                    <button type="submit" className="btn btn-primary mt-4">Save</button>
+
+                    <p className="text-xs text-secondary mt-3">
+                      Split equally among all members by default.
+                    </p>
+
+                    <button type="submit" className="btn btn-primary mt-4">
+                      Save
+                    </button>
                   </form>
                 )}
 
+
+                {/* CONTENT */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+
+                  {/* EXPENSES */}
                   <div>
                     <h3 className="text-lg font-bold mb-4">Expenses</h3>
+
                     {currentGroup.expenses.length === 0 ? (
-                      <p className="text-secondary text-sm italic">No expenses recorded yet.</p>
+                      <p className="text-secondary text-sm italic">
+                        No expenses recorded yet.
+                      </p>
                     ) : (
                       <div className="flex flex-col gap-3">
                         {currentGroup.expenses.map((exp, i) => {
                           const payer = currentGroup.members.find(m => m.id === exp.paidBy);
+
                           return (
-                            <div key={i} className="p-3 rounded-lg flex justify-between items-center" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                            <div 
+                              key={i}
+                              className="p-3 rounded-lg flex justify-between items-center bg-black/20"
+                            >
                               <div>
                                 <p className="font-semibold">{exp.description}</p>
-                                <p className="text-xs text-secondary">{payer?.name} paid</p>
+                                <p className="text-xs text-secondary">
+                                  {payer?.name} paid
+                                </p>
                               </div>
-                              <p className="font-bold text-lg">₹{exp.amount.toFixed(2)}</p>
+
+                              <p className="font-bold text-lg">
+                                ₹{exp.amount.toFixed(2)}
+                              </p>
                             </div>
                           );
                         })}
@@ -297,31 +365,47 @@ const GroupExpenses = () => {
                     )}
                   </div>
 
+
+                  {/* SETTLEMENTS */}
                   <div>
                     <h3 className="text-lg font-bold mb-4">Who owes Who?</h3>
+
                     {currentGroup.expenses.length === 0 ? (
-                      <p className="text-secondary text-sm italic">Add an expense to calculate balances.</p>
+                      <p className="text-secondary text-sm italic">
+                        Add an expense to calculate balances.
+                      </p>
                     ) : (
                       <div className="flex flex-col gap-3">
                         {calculateSettlements(currentGroup).length === 0 ? (
-                          <p className="text-success text-sm font-semibold">All balances are settled up!</p>
+                          <p className="text-success text-sm font-semibold">
+                            All balances are settled up!
+                          </p>
                         ) : (
                           calculateSettlements(currentGroup).map((settlement, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                            <div 
+                              key={i}
+                              className="flex items-center gap-3 p-3 rounded-lg bg-white/5"
+                            >
                               <span className="font-semibold">{settlement.from}</span>
-                              <ArrowRightLeft size={16} className="text-secondary flex-shrink-0" />
+                              <ArrowRightLeft size={16} className="text-secondary" />
                               <span className="font-semibold">{settlement.to}</span>
-                              <span className="ml-auto font-bold text-danger">₹{settlement.amount.toFixed(2)}</span>
+
+                              <span className="ml-auto font-bold text-danger">
+                                ₹{settlement.amount.toFixed(2)}
+                              </span>
                             </div>
                           ))
                         )}
                       </div>
                     )}
                   </div>
+
                 </div>
+
               </div>
             </div>
           )}
+
         </div>
       )}
     </div>
